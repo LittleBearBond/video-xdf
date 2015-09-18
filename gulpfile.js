@@ -6,7 +6,6 @@
 // 引入 gulp及组件
 var gulp = require('gulp'), //基础库
     imagemin = require('gulp-imagemin'), //图片压缩
-    rubySass = require('gulp-ruby-sass'), //sass
     sass = require('gulp-sass'), //sass
     minifycss = require('gulp-minify-css'), //css压缩
     jshint = require('gulp-jshint'), //js检查
@@ -14,72 +13,32 @@ var gulp = require('gulp'), //基础库
     rename = require('gulp-rename'), //重命名
     concat = require('gulp-concat'), //合并文件
     clean = require('gulp-clean'), //清空文件夹
-    livereload = require('gulp-livereload'), //livereload
     sourcemaps = require('gulp-sourcemaps'),
-    browserSync = require('browser-sync').create(),
-    reload = browserSync.reload,
     jpegtran = require('imagemin-jpegtran'),
     pngquant = require('imagemin-pngquant'),
     cache = require('gulp-cache'),
     notify = require('gulp-notify'),
-    autoprefixer = require('gulp-autoprefixer');
+    gutil = require('gulp-util'),
+    autoprefixer = require('gulp-autoprefixer'),
+    browserSync = require('browser-sync').create(),
+    reload = browserSync.reload;
 
 //Gulp 仅有 5 个方法就能组合出你需要的任务流程：task, run, watch, src, dest
 var src = './src/';
 var destSrc = './dist/';
 
 // HTML处理
-gulp.task('html', function() {
+/*gulp.task('html', function() {
     var htmlSrc = src + '*.html',
         htmlDst = destSrc;
-
     return gulp.src(htmlSrc)
         .pipe(gulp.dest(htmlDst));
-});
+});*/
 
 
 // 样式处理
 gulp.task('sass', function() {
     var cssSrc = './src/video/video-js-4.12.15/video-js-xdf/'; //src + '*.scss',
-
-    /*// gulp-ruby-sass: 0.7.1
-    gulp.task('sass', function() {
-        return gulp.src('path/to/scss')
-            .pipe(sass({ style: 'expanded' }))
-            .pipe(gulp.dest('path/to/css'));
-    });
-
-    // gulp-ruby-sass: 1.x
-    gulp.task('sass', function() {
-        return sass('path/to/scss', { style: 'expanded' })
-            .pipe(gulp.dest('path/to/css'));
-    });*/
-
-    /*return rubySass(cssSrc + 'video-xdf.scss', {
-            // precision: 6,
-            // stopOnError: true,
-            // cacheLocation: './',
-            // loadPath: ['library', '../../shared-components']
-            style: 'expanded',
-            sourcemap: true
-        })
-        .on('error', rubySass.logError)
-        // For inline sourcemaps
-        .pipe(sourcemaps.write())
-        // For file sourcemaps
-        .pipe(autoprefixer())
-        .pipe(sourcemaps.write('maps', {
-            includeContent: false,
-            sourceRoot: 'source'
-        }))
-        // .pipe(rename({
-        //     suffix: '.min'
-        // }))
-        // .pipe(minifycss())
-        .pipe(gulp.dest(cssSrc))
-        // .pipe(notify({
-        //     message: 'sass ok !'
-        // }));*/
     return gulp.src('./src/**/*.scss')
         .pipe(sass().on('error', sass.logError))
         .pipe(sourcemaps.init())
@@ -94,7 +53,7 @@ gulp.task('sass', function() {
         .pipe(gulp.dest('./src'));
 });
 
-// 样式处理
+// 发布样式处理
 gulp.task('publishSass', function() {
     var cssSrc = src + 'video/video-js-4.12.15/**/*.scss',
         cssDst = destSrc + 'video/';
@@ -137,26 +96,6 @@ gulp.task('images', function() {
         .pipe(gulp.dest(imgDst));
 });
 
-// 任务：压缩jpg
-//gulp.task('jpgmin',function(){
-//    return gulp.src('images/**/*.jpg')
-//           .pipe(imagemin({
-//                progressive: true,
-//                use:[jpegtran()]
-//           }))
-//           .pipe(gulp.dest(destSrc + 'images/'));
-//});
-
-// 任务：压缩png
-//gulp.task('pngmin',function(){
-//    return gulp.src('images/**/*.png')
-//           .pipe(imagemin({
-//                quality: '65-80',
-//                speed: 4,
-//                use:[pngquant()]
-//           }))
-//           .pipe(gulp.dest(destSrc + 'images/'));
-//});
 
 // js处理
 gulp.task('js', function() {
@@ -168,6 +107,7 @@ gulp.task('js', function() {
         .on('error', function(e) {
             console.log(e);
         })
+        .on('error', gutil.log)
         //.pipe(jshint.reporter('default'))
         .pipe(gulp.dest(jsDst))
         // .pipe(rename({
