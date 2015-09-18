@@ -1,9 +1,3 @@
-/* var gulp = require('gulp');
-
- gulp.task('default', function() {
-     // 将你的默认的任务代码放在这
- });*/
-
 /**
  * 组件安装
  * npm install gulp-util gulp-imagemin gulp-ruby-sass gulp-minify-css gulp-jshint gulp-uglify gulp-rename gulp-concat gulp-clean gulp-livereload gulp-sourcemaps tiny-lr st --save-dev
@@ -43,8 +37,9 @@ gulp.task('html', function() {
         .pipe(gulp.dest(htmlDst));
 });
 
+
 // 样式处理
-gulp.task('css', function() {
+gulp.task('sass', function() {
     var cssSrc = './src/video/video-js-4.12.15/video-js-xdf/'; //src + '*.scss',
 
     /*// gulp-ruby-sass: 0.7.1
@@ -59,6 +54,7 @@ gulp.task('css', function() {
         return sass('path/to/scss', { style: 'expanded' })
             .pipe(gulp.dest('path/to/css'));
     });*/
+
     /*return rubySass(cssSrc + 'video-xdf.scss', {
             // precision: 6,
             // stopOnError: true,
@@ -98,13 +94,35 @@ gulp.task('css', function() {
         .pipe(gulp.dest('./src'));
 });
 
+// 样式处理
+gulp.task('publishSass', function() {
+    var cssSrc = src + 'video/video-js-4.12.15/**/*.scss',
+        cssDst = destSrc + 'video/';
+
+    return gulp.src(cssSrc)
+        .pipe(sass().on('error', sass.logError))
+        .pipe(sourcemaps.init())
+        .pipe(sass({
+            outputStyle: 'expanded'
+        }))
+        .pipe(gulp.dest(cssDst))
+        .pipe(autoprefixer())
+        .pipe(gulp.dest(cssDst))
+        .pipe(minifycss())
+        .pipe(sourcemaps.write('./', {
+            includeContent: false,
+            sourceRoot: 'source'
+        }))
+        .pipe(gulp.dest(cssDst));
+});
+
 // 图片处理
 gulp.task('images', function() {
-    var imgSrc = src + '**/*.+(png|jpg|jpeg|gif|svg)', //*.+(jpeg|jpg|png)'
-        imgDst = destSrc;
+    var imgSrc = src + 'video/video-js-4.12.15/**/*.+(png|jpg|jpeg|gif)', //*.+(jpeg|jpg|png)'
+        imgDst = destSrc + 'video/';
 
     // 1. 找到图片
-    gulp.src(imgSrc)
+    return gulp.src(imgSrc)
         // 2. 压缩图片
         // 只有新的或更动的图片会被压缩
         .pipe(cache(imagemin({
@@ -116,10 +134,7 @@ gulp.task('images', function() {
             console.log(e);
         })
         // 3. 另存图片
-        .pipe(gulp.dest(imgDst))
-        .pipe(notify({
-            message: 'compress ok !'
-        }));
+        .pipe(gulp.dest(imgDst));
 });
 
 // 任务：压缩jpg
@@ -145,40 +160,46 @@ gulp.task('images', function() {
 
 // js处理
 gulp.task('js', function() {
-    var jsSrc = src + 'video/*.js',
+    var jsSrc = src + 'video/video-js-4.12.15/**/*.js',
         jsDst = destSrc + 'video/';
 
     return gulp.src(jsSrc)
-        .pipe(jshint('.jshintrc'))
+        //.pipe(jshint('.jshintrc'))
         .on('error', function(e) {
             console.log(e);
         })
-        .pipe(jshint.reporter('default'))
+        //.pipe(jshint.reporter('default'))
         .pipe(gulp.dest(jsDst))
-        .pipe(rename({
-            suffix: '.min'
-        }))
+        // .pipe(rename({
+        //     suffix: '.min'
+        // }))
         .pipe(uglify())
         .pipe(gulp.dest(jsDst));
 });
 
 // 清空图片、样式、js
 gulp.task('clean', function() {
-    return gulp.src([destSrc + '**/*'], {
+    //*.* 记住这个
+    return gulp.src([destSrc + 'video/**/*.*'], {
             read: false //file.contents 会返回空值（null），并不会去读取文件
         })
         .pipe(clean());
 });
 
-// 默认任务 清空图片、样式、js并重建 运行语句 gulp
-//gulp.task('default', ['clean', 'html', 'css', 'images', 'js'] /*, function() {gulp.start(); }*/ );
-gulp.task('default', ['clean'] /*, function() {gulp.start(); }*/ );
 
+
+gulp.task('default', ['watch']);
+
+//gulp.task('bulid', ['clean','publishSass', 'js', 'images']); 这样写不靠谱，必须要先清理完毕在执行其他任务
+gulp.task('bulid', ['clean'], function() {
+    gulp.start('publishSass', 'js', 'images');
+    //console.log('=================bulid ok !=================')
+});
 
 // web服务 Server + watching scss/js files
 gulp.task('web-server', function() {
     browserSync.init({
-        server: './dist',
+        server: './src/video/video-js-4.12.15/test-page/',
         index: 'index.html',
         port: 3000,
         /*ui: {
@@ -189,43 +210,15 @@ gulp.task('web-server', function() {
         open: true,
         logConnections: true,
         //监听文件
-        files: [destSrc + '**/*.js', destSrc + '**/*.css', destSrc + '**/*.html'] //监控变化
+        files: [src + '**/*.js', src + '**/*.css', src + '**/*.html'] //监控变化
     });
 });
 
 // 监听任务 运行语句 gulp watch
 gulp.task('watch', /*['web-server'], */ function() {
-
-    // 监听html
-    // gulp.watch(src + '*.html', function(event) {
-    //     gulp.run('html');
-    // })
-
     // 监听css
     gulp.watch(src + '**/*.scss', function() {
         console.dir(arguments[0].path)
-        gulp.run('css');
+        gulp.run('sass');
     });
-
-    // 监听images
-    // gulp.watch(src + '**/*.+(jpeg|jpg|png)', function() {
-    //     gulp.run('images');
-    // });
-
-    // 监听js
-    // gulp.watch(src + '**/*.js', function() {
-    //     gulp.run('js');
-    // });
-    //});
 });
-
-/*
- *gulp test-args  --type dev --dist distSrc
- *{ _: [ 'test-args' ], type: 'dev', dist: 'distSrc' }
- *{ '0': [Function] }
- */
-
-gulp.task('test-args', function() {
-    console.dir(gulp.env);
-    console.log(arguments)
-})
