@@ -10,11 +10,11 @@
 
 
     // register the plugin
-    videojs.plugin('progressed', function(options) {
+    /*videojs.plugin('progressed', function(options) {
         this.on('progress', function(e) {
             console.log(this.bufferedPercent());
         });
-    });
+    });*/
 
     var vid = document.getElementById("vid1");
 
