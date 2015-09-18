@@ -35,7 +35,6 @@ var destSrc = './dist/';
         .pipe(gulp.dest(htmlDst));
 });*/
 
-
 // 样式处理
 gulp.task('sass', function() {
     var cssSrc = './src/video/video-js-4.12.15/video-js-xdf/'; //src + '*.scss',
@@ -114,7 +113,10 @@ gulp.task('js', function() {
         //     suffix: '.min'
         // }))
         .pipe(uglify())
-        .pipe(gulp.dest(jsDst));
+        .pipe(gulp.dest(jsDst))
+        .pipe(notify({
+            message: 'js ok !'
+        }));
 });
 
 // 清空图片、样式、js
@@ -124,16 +126,6 @@ gulp.task('clean', function() {
             read: false //file.contents 会返回空值（null），并不会去读取文件
         })
         .pipe(clean());
-});
-
-
-
-gulp.task('default', ['watch']);
-
-//gulp.task('bulid', ['clean','publishSass', 'js', 'images']); 这样写不靠谱，必须要先清理完毕在执行其他任务
-gulp.task('bulid', ['clean'], function() {
-    gulp.start('publishSass', 'js', 'images');
-    //console.log('=================bulid ok !=================')
 });
 
 // web服务 Server + watching scss/js files
@@ -161,4 +153,14 @@ gulp.task('watch', /*['web-server'], */ function() {
         console.dir(arguments[0].path)
         gulp.run('sass');
     });
+});
+
+//gulp.task('bulid', ['clean','publishSass', 'js', 'images']); 这样写不靠谱，必须要先清理完毕在执行其他任务
+gulp.task('bulid', ['clean'], function() {
+    gulp.start('publishSass', 'js', 'images');
+    //console.log('=================bulid ok !=================')
+});
+
+gulp.task('default', ['watch'], function() {
+    console.log('start watch …………');
 });
