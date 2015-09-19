@@ -26,7 +26,11 @@ var gulp = require('gulp'), //基础库
 //Gulp 仅有 5 个方法就能组合出你需要的任务流程：task, run, watch, src, dest
 var src = './src/';
 var destSrc = './dist/';
-
+var logLine = function() {
+    Array.prototype.slice.call(arguments).forEach(function(val) {
+        console.log('=================' + val + '=================');
+    });
+};
 // HTML处理
 /*gulp.task('html', function() {
     var htmlSrc = src + '*.html',
@@ -113,10 +117,7 @@ gulp.task('js', function() {
         //     suffix: '.min'
         // }))
         .pipe(uglify())
-        .pipe(gulp.dest(jsDst))
-        .pipe(notify({
-            message: 'js ok !'
-        }));
+        .pipe(gulp.dest(jsDst));
 });
 
 // 清空图片、样式、js
@@ -150,17 +151,19 @@ gulp.task('web-server', function() {
 gulp.task('watch', /*['web-server'], */ function() {
     // 监听css
     gulp.watch(src + '**/*.scss', function() {
-        console.dir(arguments[0].path)
+        logLine(arguments[0].path);
         gulp.run('sass');
     });
 });
 
 //gulp.task('bulid', ['clean','publishSass', 'js', 'images']); 这样写不靠谱，必须要先清理完毕在执行其他任务
 gulp.task('bulid', ['clean'], function() {
-    gulp.start('publishSass', 'js', 'images');
-    //console.log('=================bulid ok !=================')
+    var startTime = +new Date();
+    gulp.start('publishSass', 'js', 'images', function() {
+        logLine('bulid ok !', '耗时：' + ((+new Date()) - startTime) / 1000) + 's';
+    });
 });
 
 gulp.task('default', ['watch'], function() {
-    console.log('start watch …………');
+    logLine('start watch …………');
 });
