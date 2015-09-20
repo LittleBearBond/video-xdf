@@ -32,16 +32,15 @@ var logLine = function() {
     });
 };
 // HTML处理
-/*gulp.task('html', function() {
-    var htmlSrc = src + '*.html',
-        htmlDst = destSrc;
+gulp.task('html', function() {
+    var htmlSrc = src + 'video/video-js-4.12.15/**/*.html',
+        htmlDst = destSrc + 'video/';
     return gulp.src(htmlSrc)
         .pipe(gulp.dest(htmlDst));
-});*/
+});
 
 // 样式处理
 gulp.task('sass', function() {
-    var cssSrc = './src/video/video-js-4.12.15/video-js-xdf/'; //src + '*.scss',
     return gulp.src('./src/**/*.scss')
         .pipe(sass().on('error', sass.logError))
         .pipe(sourcemaps.init())
@@ -159,7 +158,7 @@ gulp.task('watch', /*['web-server'], */ function() {
 //gulp.task('bulid', ['clean','publishSass', 'js', 'images']); 这样写不靠谱，必须要先清理完毕在执行其他任务
 gulp.task('bulid', ['clean'], function() {
     var startTime = +new Date();
-    gulp.start('publishSass', 'js', 'images', function() {
+    gulp.start('publishSass', 'js', 'images', 'html', function() {
         logLine('bulid ok !', '耗时：' + ((+new Date()) - startTime) / 1000) + 's';
     });
 });
