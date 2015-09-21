@@ -56,27 +56,34 @@ gulp.task('sass', function() {
 });
 
 // 发布样式处理
-gulp.task('publishSass', function() {
-    var cssSrc = src + 'video/video-js-4.12.15/**/*.scss',
-        cssDst = destSrc + 'video/';
+// gulp.task('publishSass', function() {
+//     var cssSrc = src + 'video/video-js-4.12.15/**/*.scss',
+//         cssDst = destSrc + 'video/';
 
+//     return gulp.src(cssSrc)
+//         .pipe(sass().on('error', sass.logError))
+//         .pipe(sourcemaps.init())
+//         .pipe(sass({
+//             outputStyle: 'expanded'
+//         }))
+//         .pipe(gulp.dest(cssDst))
+//         .pipe(autoprefixer())
+//         .pipe(gulp.dest(cssDst))
+//         .pipe(minifycss())
+//         .pipe(sourcemaps.write('./', {
+//             includeContent: false,
+//             sourceRoot: 'source'
+//         }))
+//         .pipe(gulp.dest(cssDst));
+// });
+//
+gulp.task('publishSass', ['sass'], function() {
+    var cssSrc = src + 'video/video-js-4.12.15/**/*.css',
+        cssDst = destSrc + 'video/';
     return gulp.src(cssSrc)
-        .pipe(sass().on('error', sass.logError))
-        .pipe(sourcemaps.init())
-        .pipe(sass({
-            outputStyle: 'expanded'
-        }))
-        .pipe(gulp.dest(cssDst))
-        .pipe(autoprefixer())
-        .pipe(gulp.dest(cssDst))
         .pipe(minifycss())
-        .pipe(sourcemaps.write('./', {
-            includeContent: false,
-            sourceRoot: 'source'
-        }))
         .pipe(gulp.dest(cssDst));
 });
-
 // 图片处理
 gulp.task('images', function() {
     var imgSrc = src + 'video/video-js-4.12.15/**/*.+(png|jpg|jpeg|gif)', //*.+(jpeg|jpg|png)'
